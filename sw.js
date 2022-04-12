@@ -39,10 +39,10 @@
 
 var precacheConfig = [
     ["index.html", "6b43b679d8f5dbb12fcf8df0797e2275"],
-    ["icon-512x512.png", "2f7998dd738b481c09f771f52ce5f3e0"],
-    ["icon-384x384.png", "7eb314e409e7f0a36f24128a2e0da507"],
-    ["icon-256x256.png", "507af18aee509be5c863d23310f6e415"],
-    ["icon-192x192.png", "dfd5493b44a4a46e8538a475de5078cb"],
+    ["icon-512x512.png", "003fe0cbfc2f5da20f8f1cf8fd01b59a"],
+    ["icon-384x384.png", "8629098b951dcae052261c58fc6478cf"],
+    ["icon-256x256.png", "e17b65ff7482ed2ba2536bd37fda145c"],
+    ["icon-192x192.png", "f211827f8a7252dc4e7b7d6ffcb5e363"],
     ["pwa.js", "297c2656925ad8b029f41984a8c1f4f2"]
 ];
 var cacheName = 'sw-precache-csclock' + (self.registration ? self.registration.scope : '');
