@@ -38,7 +38,8 @@
 'use strict';
 
 var precacheConfig = [
-    ["index.html", "6b43b679d8f5dbb12fcf8df0797e2275"],
+    ["index.html", "490ae70548c52ceaf01ef711c46410a9"],
+    ["favicon.ico", "f84eb991e1a738b10ede3332aedc0e3a"],
     ["icon-512x512.png", "003fe0cbfc2f5da20f8f1cf8fd01b59a"],
     ["icon-384x384.png", "8629098b951dcae052261c58fc6478cf"],
     ["icon-256x256.png", "e17b65ff7482ed2ba2536bd37fda145c"],

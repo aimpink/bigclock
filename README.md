@@ -1,2 +1,2 @@
 # bigclock
- Simple resizable javascript clock with seconds
+ Simple resizable javascript clock with seconds 
