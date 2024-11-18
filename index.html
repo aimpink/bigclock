@@ -26,39 +26,56 @@
         </div>
 
         <script type="text/javascript">
-            "use strict";
-
-            var textElem = document.getElementById("clocktext");
-            var textNode = document.createTextNode("");
+            const textElem = document.getElementById("clocktext");
+            const textNode = document.createTextNode("");
             textElem.appendChild(textNode);
-            var curFontSize = 24;  // Do not change
+            
+            const TARGET_WIDTH_RATIO = 0.9;
+            let curFontSize = 24; // Default font size
+                        
+            function formatTime() {
+                const now = new Date();
+                const options = { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true };
+                const formattedTime = new Intl.DateTimeFormat('en-US', options).format(now);
+            
+                // Convert AM/PM to lowercase
+                return formattedTime.replace(/\s?(AM|PM)$/i, (match) => match.toLowerCase());
+            }
 
             function updateClock() {
-                var d = new Date();
-                var s = "";
-                s += ((d.getHours() + 11) % 12 + 1) + ":";
-                s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes() + ":";
-                s += (10 > d.getSeconds() ? "0" : "") + d.getSeconds() + "\u00A0";
-                s += d.getHours() >= 12 ? "pm" : "am";
-                textNode.data = s;
-                setTimeout(updateClock, 1000 - d.getTime() % 1000 + 100);
+                textNode.data = formatTime();
+                setTimeout(updateClock, 1000 - (Date.now() % 1000)); // Ensure alignment with system clock
             }
-
+            
             function updateTextSize() {
-                var targetWidth = 0.9;  // Proportion of full screen width
-                for (var i = 0; 3 > i; i++) {  // Iterate for better better convergence
-                    var newFontSize = window.innerWidth * targetWidth / textElem.offsetWidth * curFontSize;
+                let iterationLimit = 10; // Safety cap
+                let threshold = 0.5; // Minimum font size change
+                let newFontSize;
+            
+                do {
+                    const parentWidth = textElem.parentNode.offsetWidth;
+                    if (!parentWidth) {
+                        textElem.style.fontSize = `${curFontSize}px`; // Fallback
+                        return;
+                    }
+                    newFontSize = parentWidth * TARGET_WIDTH_RATIO / textElem.offsetWidth * curFontSize;
                     textElem.style.fontSize = newFontSize.toFixed(3) + "pt";
+                    if (Math.abs(newFontSize - curFontSize) < threshold) break;
                     curFontSize = newFontSize;
-                }
+                } while (--iterationLimit > 0);
             }
-
+            
+            window.addEventListener("resize", (() => {
+                let resizeTimeout;
+                return () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(updateTextSize, 100);
+                };
+            })());
+            
             updateClock();
             updateTextSize();
-            window.addEventListener("resize", updateTextSize);
-            document.addEventListener('DOMContentLoaded', function() {
-                window.dispatchEvent(new Event('resize'));
-            }, false);
+            
         </script>
     </body>
 </html>
