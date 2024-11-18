@@ -37,15 +37,7 @@
 /* eslint-disable indent, no-unused-vars, no-multiple-empty-lines, max-nested-callbacks, space-before-function-paren, quotes, comma-spacing */
 'use strict';
 
-var precacheConfig = [
-    ["index.html", "490ae70548c52ceaf01ef711c46410a9"],
-    ["favicon.ico", "f84eb991e1a738b10ede3332aedc0e3a"],
-    ["icon-512x512.png", "003fe0cbfc2f5da20f8f1cf8fd01b59a"],
-    ["icon-384x384.png", "8629098b951dcae052261c58fc6478cf"],
-    ["icon-256x256.png", "e17b65ff7482ed2ba2536bd37fda145c"],
-    ["icon-192x192.png", "f211827f8a7252dc4e7b7d6ffcb5e363"],
-    ["pwa.js", "297c2656925ad8b029f41984a8c1f4f2"]
-];
+var precacheConfig = [];
 var cacheName = 'sw-precache-csclock' + (self.registration ? self.registration.scope : '');
 
 
