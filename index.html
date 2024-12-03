@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 </--
  * Copyright (c) 2024, Alan Impink. All rights reserved.
@@ -12,16 +13,17 @@
 <html style="display:block; height:100%; margin:0; padding:0">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#000001"/>
+        <meta name="google" content="notranslate">
         <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
         <link rel="icon" type="image/svg+xml" href="favicon.svg" />
         <link rel="shortcut icon" href="favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-title" content="Big Clock" />
-      	<link rel="manifest" href="manifest.json">  
+        <link rel="manifest" href="manifest.json">  
         <script src="pwa.js"></script>   
-	<title>Clock</title>
+        <title>Clock</title>
         <style type="text/css">
             /* Customizable font and colors */
             html {
@@ -47,7 +49,28 @@
             
             const TARGET_WIDTH_RATIO = 0.9;
             let curFontSize = 24; // Default font size
-                        
+            
+            let wakeLock = null; // Variable to store the wake lock reference
+            
+            async function requestWakeLock() {
+                try {
+                    if ('wakeLock' in navigator) {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                        console.log('Wake Lock acquired');
+                    }
+                } catch (err) {
+                    console.error('Failed to acquire wake lock:', err);
+                }
+            }
+
+            function releaseWakeLock() {
+                if (wakeLock) {
+                    wakeLock.release();
+                    wakeLock = null;
+                    console.log('Wake Lock released');
+                }
+            }
+
             function formatTime() {
                 const now = new Date();
                 const options = { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true };
@@ -87,10 +110,19 @@
                     resizeTimeout = setTimeout(updateTextSize, 100);
                 };
             })());
+
+            // Request wake lock when the page loads
+            window.addEventListener('load', () => {
+                requestWakeLock();
+            });
+
+            // Release wake lock when the page unloads
+            window.addEventListener('unload', () => {
+                releaseWakeLock();
+            });
             
             updateClock();
             updateTextSize();
-            
         </script>
     </body>
 </html>
