@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 </--
  * Copyright (c) 2024, Alan Impink. All rights reserved.
@@ -20,8 +21,13 @@
         <link rel="shortcut icon" href="favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-title" content="Big Clock" />
+<<<<<<< HEAD
         <link rel="manifest" href="manifest.json">
         <script src="pwa.js"></script>
+=======
+        <link rel="manifest" href="manifest.json">  
+        <script src="pwa.js"></script>   
+>>>>>>> 87baa35093a36db0f3d3c9cdad5a85868c180574
         <title>Clock</title>
         <style type="text/css">
             /* Customizable font and colors */
@@ -47,15 +53,25 @@
             textElem.appendChild(textNode);
 
             let curFontSize = 24; // Default font size
+<<<<<<< HEAD
             let wakeLock = null; // Variable to store the wake lock reference
 
 
+=======
+            
+            let wakeLock = null; // Variable to store the wake lock reference
+            
+>>>>>>> 87baa35093a36db0f3d3c9cdad5a85868c180574
             async function requestWakeLock() {
                 try {
                     if ('wakeLock' in navigator) {
                         wakeLock = await navigator.wakeLock.request('screen');
                         console.log('Wake Lock acquired');
+<<<<<<< HEAD
                     } else {
+=======
+	            } else {
+>>>>>>> 87baa35093a36db0f3d3c9cdad5a85868c180574
                         console.log('Wake Lock not available');
                     }
                 } catch (err) {
