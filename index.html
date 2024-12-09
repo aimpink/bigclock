@@ -12,16 +12,17 @@
 <html style="display:block; height:100%; margin:0; padding:0">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#000001"/>
+        <meta name="google" content="notranslate">
         <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
         <link rel="icon" type="image/svg+xml" href="favicon.svg" />
         <link rel="shortcut icon" href="favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-title" content="Big Clock" />
-      	<link rel="manifest" href="manifest.json">  
-        <script src="pwa.js"></script>   
-	<title>Clock</title>
+        <link rel="manifest" href="manifest.json">
+        <script src="pwa.js"></script>
+        <title>Clock</title>
         <style type="text/css">
             /* Customizable font and colors */
             html {
@@ -44,53 +45,72 @@
             const textElem = document.getElementById("clocktext");
             const textNode = document.createTextNode("");
             textElem.appendChild(textNode);
-            
-            const TARGET_WIDTH_RATIO = 0.9;
+
             let curFontSize = 24; // Default font size
-                        
-            function formatTime() {
-                const now = new Date();
-                const options = { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true };
-                const formattedTime = new Intl.DateTimeFormat('en-US', options).format(now);
-            
-                // Convert AM/PM to lowercase
-                return formattedTime.replace(/\s?(AM|PM)$/i, (match) => match.toLowerCase());
+            let wakeLock = null; // Variable to store the wake lock reference
+
+
+            async function requestWakeLock() {
+                try {
+                    if ('wakeLock' in navigator) {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                        console.log('Wake Lock acquired');
+                    } else {
+                        console.log('Wake Lock not available');
+                    }
+                } catch (err) {
+                    console.error('Failed to acquire wake lock:', err);
+                }
+            }
+
+            function releaseWakeLock() {
+                if (wakeLock) {
+                    wakeLock.release();
+                    wakeLock = null;
+                    console.log('Wake Lock released');
+                }
             }
 
             function updateClock() {
-                textNode.data = formatTime();
-                setTimeout(updateClock, 1000 - (Date.now() % 1000)); // Ensure alignment with system clock
+                var d = new Date();
+                var s = "";
+                s += ((d.getHours() + 11) % 12 + 1) + ":";
+                s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes() + ":";
+                s += (10 > d.getSeconds() ? "0" : "") + d.getSeconds() + "\u00A0";
+                s += d.getHours() >= 11 ? "pm" : "am";
+                textNode.data = s;
+                setTimeout(updateClock, 1000 - d.getTime() % 1000 + 100);
             }
-            
+
             function updateTextSize() {
-                let iterationLimit = 10; // Safety cap
-                let threshold = 0.5; // Minimum font size change
-                let newFontSize;
-            
-                do {
-                    const parentWidth = textElem.parentNode.offsetWidth;
-                    if (!parentWidth) {
-                        textElem.style.fontSize = `${curFontSize}px`; // Fallback
-                        return;
-                    }
-                    newFontSize = parentWidth * TARGET_WIDTH_RATIO / textElem.offsetWidth * curFontSize;
+                var targetWidth = 0.9;  // Proportion of full screen width
+                for (var i = 0; 3 > i; i++) {  // Iterate for better better convergence
+                    var newFontSize = window.innerWidth * targetWidth / textElem.offsetWidth * curFontSize;
                     textElem.style.fontSize = newFontSize.toFixed(3) + "pt";
-                    if (Math.abs(newFontSize - curFontSize) < threshold) break;
                     curFontSize = newFontSize;
-                } while (--iterationLimit > 0);
+                }
             }
-            
-            window.addEventListener("resize", (() => {
-                let resizeTimeout;
-                return () => {
-                    clearTimeout(resizeTimeout);
-                    resizeTimeout = setTimeout(updateTextSize, 100);
-                };
-            })());
-            
+
             updateClock();
             updateTextSize();
-            
+
+            // Request wake lock when the page loads
+            window.addEventListener('load', () => {
+                requestWakeLock();
+            });
+
+            // Release wake lock when the page unloads
+            window.addEventListener('beforeunload', () => {
+                releaseWakeLock();
+            });
+
+            window.addEventListener("resize", () => {
+                updateTextSize();
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                window.dispatchEvent(new Event('resize'));
+            }, false);
         </script>
     </body>
 </html>
