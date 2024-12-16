@@ -1,6 +1,5 @@
-
 <!DOCTYPE html>
-</--
+<!--
  * Copyright (c) 2024, Alan Impink. All rights reserved.
  *
  * This code is the proprietary and confidential property of Alan Impink.
@@ -12,22 +11,33 @@
 -->
 <html style="display:block; height:100%; margin:0; padding:0">
     <head>
+        <title>Clock</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#000001"/>
         <meta name="google" content="notranslate">
-        <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
         <link rel="icon" type="image/svg+xml" href="favicon.svg" />
         <link rel="shortcut icon" href="favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-        <meta name="apple-mobile-web-app-title" content="Big Clock" />
+        <script src="pwa.js" defer></script>
         <link rel="manifest" href="manifest.json">
-        <script src="pwa.js"></script>
-        <title>Clock</title>
         <style type="text/css">
             /* Customizable font and colors */
             html {
                 background: #000000;
+            }
+	    body {
+                display: table;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+	    #clock-container {
+                display: table-cell;
+                width: 100%;
+                height: 100%;
+                text-align: center;
+                vertical-align: middle;
             }
             #clocktext {
                 font-family: sans-serif;
@@ -37,8 +47,8 @@
         </style>
     </head>
 
-    <body style="display:table; width:100%; height:100%; margin:0; padding:0">
-        <div style="display:table-cell; width:100%; height:100%; text-align:center; vertical-align:middle">
+    <body>
+        <div class="clock-container" style="display:table-cell; width:100%; height:100%; text-align:center; vertical-align:middle">
             <span id="clocktext" style="font-size:24pt; font-kerning:none"></span>
         </div>
 
@@ -47,7 +57,7 @@
             const textNode = document.createTextNode("");
             textElem.appendChild(textNode);
 
-            let curFontSize = 24; // Default font size
+            let curFontSize = 16; // Default font size
             let wakeLock = null; // Variable to store the wake lock reference
             
             async function requestWakeLock() {
@@ -72,8 +82,8 @@
             }
 
             function updateClock() {
-                var d = new Date();
-                var s = "";
+                const d = new Date();
+                let s = "";
                 s += ((d.getHours() + 11) % 12 + 1) + ":";
                 s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes() + ":";
                 s += (10 > d.getSeconds() ? "0" : "") + d.getSeconds() + "\u00A0";
@@ -82,13 +92,18 @@
                 setTimeout(updateClock, 1000 - d.getTime() % 1000 + 100);
             }
 
-            function updateTextSize() {
-                var targetWidth = 0.9;  // Proportion of full screen width
-                for (var i = 0; 3 > i; i++) {  // Iterate for better better convergence
-                    var newFontSize = window.innerWidth * targetWidth / textElem.offsetWidth * curFontSize;
+	    function updateTextSize() {
+                const targetWidth = 0.9; // Proportion of full screen width
+                let iterationLimit = 10; // Safety cap
+                let threshold = 0.5; // Minimum change in font size
+                let newFontSize;
+            
+                do {
+                    newFontSize = (window.innerWidth * targetWidth / textElem.offsetWidth) * curFontSize;
                     textElem.style.fontSize = newFontSize.toFixed(3) + "pt";
+                    if (Math.abs(newFontSize - curFontSize) < threshold) break;
                     curFontSize = newFontSize;
-                }
+                } while (--iterationLimit > 0);
             }
 
             updateClock();
@@ -108,9 +123,6 @@
                 updateTextSize();
             });
 
-            document.addEventListener('DOMContentLoaded', function() {
-                window.dispatchEvent(new Event('resize'));
-            }, false);
         </script>
     </body>
 </html>
