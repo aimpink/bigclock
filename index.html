@@ -116,7 +116,13 @@
                 const baseWidth = Math.max(availableWidth, 1);
 
                 do {
-                    newFontSize = (baseWidth * targetWidth / textElem.offsetWidth) * curFontSize;
+                    const measuredWidth = textElem.offsetWidth;
+                    if (measuredWidth <= 0) {
+                        // Element has not been laid out yet; retry on next paint.
+                        requestAnimationFrame(updateTextSize);
+                        return;
+                    }
+                    newFontSize = (baseWidth * targetWidth / measuredWidth) * curFontSize;
                     newFontSize = Math.max(minFontSize, Math.min(maxFontSize, newFontSize));
                     textElem.style.fontSize = newFontSize.toFixed(3) + "pt";
                     const delta = Math.abs(newFontSize - curFontSize);

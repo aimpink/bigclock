@@ -42,6 +42,10 @@ if (-not $RemoteDestination) {
     throw "Missing required value: RemoteDestination. Provide -RemoteDestination or set DEPLOY_REMOTE_DEST."
 }
 
+if ($RemoteDestination -notmatch '^/(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9._-]+/?$') {
+    throw "RemoteDestination must be an absolute Linux path containing only letters, numbers, dot, underscore, dash, and slash."
+}
+
 # Validate required external dependencies first for clearer failures.
 $requiredCommands = @('ssh', 'scp')
 foreach ($commandName in $requiredCommands) {
@@ -103,7 +107,8 @@ Write-Host "Target: ${UserName}@${HostName}:${RemoteDestination}" -ForegroundCol
 $sshTarget = "${UserName}@${HostName}"
 
 # Escape for POSIX single-quoted shell strings to prevent command injection via destination path.
-$escapedRemoteDestination = $RemoteDestination -replace "'", "'\"'\"'"
+$posixSingleQuoteEscape = [string]::Concat("'", '"', "'", '"', "'") # '"'"'
+$escapedRemoteDestination = $RemoteDestination.Replace("'", $posixSingleQuoteEscape)
 $remoteMkdirCommand = "mkdir -p -- '$escapedRemoteDestination'"
 
 # Ensure destination exists before upload.
