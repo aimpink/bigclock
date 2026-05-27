@@ -48,7 +48,7 @@
     </head>
 
     <body>
-        <div class="clock-container" style="display:table-cell; width:100%; height:100%; text-align:center; vertical-align:middle">
+        <div id="clock-container">
             <span id="clocktext" style="font-size:24pt; font-kerning:none"></span>
         </div>
 
@@ -64,6 +64,13 @@
                 try {
                     if ('wakeLock' in navigator) {
                         wakeLock = await navigator.wakeLock.request('screen');
+                        wakeLock.addEventListener('release', () => {
+                            // Browsers/OS can release wake lock unexpectedly (power saving, tab state, etc.).
+                            // Reacquire when the page is visible so the clock remains kiosk-friendly.
+                            if (document.visibilityState === 'visible') {
+                                requestWakeLock();
+                            }
+                        });
                         console.log('Wake Lock acquired');
 	            } else {
                         console.log('Wake Lock not available');
@@ -87,7 +94,7 @@
                 s += ((d.getHours() + 11) % 12 + 1) + ":";
                 s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes() + ":";
                 s += (10 > d.getSeconds() ? "0" : "") + d.getSeconds() + "\u00A0";
-                s += d.getHours() >= 11 ? "pm" : "am";
+                s += d.getHours() >= 12 ? "pm" : "am";
                 textNode.data = s;
                 setTimeout(updateClock, 1000 - d.getTime() % 1000 + 100);
             }
@@ -125,6 +132,14 @@
 
             window.addEventListener("orientationchange", () => {
                 updateTextSize();
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    requestWakeLock();
+                } else {
+                    releaseWakeLock();
+                }
             });
 
         </script>
