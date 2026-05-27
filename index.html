@@ -43,6 +43,7 @@
                 font-family: sans-serif;
                 font-weight: bold;
                 color: #D0D0D0;
+                white-space: nowrap;
             }
         </style>
     </head>
@@ -101,16 +102,35 @@
 
 	    function updateTextSize() {
                 const targetWidth = 0.9; // Proportion of full screen width
+                const widthPadding = 16; // Safety margin in px
+                const heightPadding = 8; // Safety margin in px
+                const minFontSize = 6; // Lower bound in points
+                const maxFontSize = 400; // Upper bound in points
                 let iterationLimit = 10; // Safety cap
                 let threshold = 0.5; // Minimum change in font size
                 let newFontSize;
-            
+
+                const availableWidth = Math.max(0, window.innerWidth - widthPadding);
+                const availableHeight = Math.max(0, window.innerHeight - heightPadding);
+                const baseWidth = Math.max(availableWidth, 1);
+
                 do {
-                    newFontSize = (window.innerWidth * targetWidth / textElem.offsetWidth) * curFontSize;
+                    newFontSize = (baseWidth * targetWidth / textElem.offsetWidth) * curFontSize;
+                    newFontSize = Math.max(minFontSize, Math.min(maxFontSize, newFontSize));
                     textElem.style.fontSize = newFontSize.toFixed(3) + "pt";
-                    if (Math.abs(newFontSize - curFontSize) < threshold) break;
+                    const delta = Math.abs(newFontSize - curFontSize);
                     curFontSize = newFontSize;
+                    if (delta < threshold) break;
                 } while (--iterationLimit > 0);
+
+                // Hard-fit pass for very small windows: keep shrinking until text fully fits.
+                while (
+                    curFontSize > minFontSize &&
+                    (textElem.scrollWidth > availableWidth || textElem.scrollHeight > availableHeight)
+                ) {
+                    curFontSize = Math.max(minFontSize, curFontSize - 0.5);
+                    textElem.style.fontSize = curFontSize.toFixed(3) + "pt";
+                }
             }
 
             updateClock();
