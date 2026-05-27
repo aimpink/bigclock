@@ -102,11 +102,15 @@ Write-Host "Target: ${UserName}@${HostName}:${RemoteDestination}" -ForegroundCol
 
 $sshTarget = "${UserName}@${HostName}"
 
+# Escape for POSIX single-quoted shell strings to prevent command injection via destination path.
+$escapedRemoteDestination = $RemoteDestination -replace "'", "'\"'\"'"
+$remoteMkdirCommand = "mkdir -p -- '$escapedRemoteDestination'"
+
 # Ensure destination exists before upload.
 $mkdirArgs = @(
     '-i', $PrivateKeyPath,
     $sshTarget,
-    "mkdir -p '$RemoteDestination'"
+    $remoteMkdirCommand
 )
 
 # Upload selected files only; hidden files are never included.
