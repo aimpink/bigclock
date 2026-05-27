@@ -15,6 +15,19 @@ $RemoteDestination = '/home/abellaspecialtie/www/clock'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
+# Validate required external dependencies first for clearer failures.
+$requiredCommands = @('ssh', 'scp')
+foreach ($commandName in $requiredCommands) {
+    if (-not (Get-Command -Name $commandName -ErrorAction SilentlyContinue)) {
+        throw "Required command '$commandName' was not found in PATH. Install OpenSSH client tools and retry."
+    }
+}
+
+# Validate SSH key path before collecting files.
+if (-not (Test-Path -LiteralPath $PrivateKeyPath -PathType Leaf)) {
+    throw "SSH private key file not found at: $PrivateKeyPath"
+}
+
 # Core app files required for deployment.
 $coreFiles = @(
     'index.html',
